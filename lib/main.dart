@@ -38,13 +38,14 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
+        fontFamily: 'Oswald',
         primarySwatch: Colors.deepOrange,
         accentColor: Colors.deepPurple,
         brightness: Brightness.light,
       ),
-      home: AuthPage(),
+//      home: AuthPage(),
       routes: {
-//        '/': (BuildContext context) => ProductsPage(_products),
+        '/': (BuildContext context) => ProductsPage(_products),
         '/admin': (BuildContext context) => ManageProducts(_addProducts, _deleteProduct),
       },
       onGenerateRoute: (RouteSettings settings) {
