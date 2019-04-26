@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import './product_manager.dart';
 import './pages/auth.dart';
 import './pages/products_admin.dart';
 import './pages/products.dart';
 import './pages/product.dart';
 
-void main() => runApp(MyApp());
+void main() {
+//  debugPaintSizeEnabled = true;
+  runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   @override
@@ -42,8 +44,9 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.deepOrange,
         accentColor: Colors.deepPurple,
         brightness: Brightness.light,
+        buttonColor: Colors.deepPurple,
       ),
-//      home: AuthPage(),
+//      home: AuthPage(_products),
       routes: {
         '/': (BuildContext context) => ProductsPage(_products),
         '/admin': (BuildContext context) => ManageProducts(_addProducts, _deleteProduct),
