@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -9,12 +10,17 @@ import '../models/user.dart';
 mixin ConnectedProducts on Model {
   List<Product> products = [];
   User authenticatedUser;
-  int selProductIndex;
-  bool _isLoading = false;
+  String selProductId;
+  bool _postisLoading = false;
 
-  void addProducts(
-      String title, String description, String image, double price) {
-    _isLoading = true;
+  bool get postIsLoading {
+    return _postisLoading;
+  }
+
+  Future<bool> addProducts(
+      String title, String description, String image, double price) async {
+    _postisLoading = true;
+    notifyListeners();
     final Map<String, dynamic> productData = {
       'title': title,
       'description': description,
@@ -24,11 +30,15 @@ mixin ConnectedProducts on Model {
       'userEmail': authenticatedUser.email,
       'userId': authenticatedUser.id
     };
-    http
-        .post('https://new-firebase-82fdf.firebaseio.com/products.json',
-            body: json.encode(productData))
-        .then((http.Response response) {
-
+    try {
+      final http.Response response = await http.post(
+          'https://new-firebase-82fdf.firebaseio.com/products.json',
+          body: json.encode(productData));
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        _postisLoading = false;
+        notifyListeners();
+        return false;
+      }
       print(response.statusCode);
       final Map<String, dynamic> responseData = json.decode(response.body);
       print(responseData);
@@ -41,14 +51,13 @@ mixin ConnectedProducts on Model {
           userEmail: authenticatedUser.email,
           userId: authenticatedUser.id);
       products.add(newProduct);
-      _isLoading = false;
+      _postisLoading = false;
       notifyListeners();
-    });
-  }
-}
-
-mixin UtilityModel on ConnectedProducts {
-  bool get isLoading {
-    return _isLoading;
+      return true;
+    } catch (error) {
+      _postisLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 }

@@ -30,43 +30,54 @@ class ProductCard extends StatelessWidget {
   }
 
   Widget _buildActionButton(BuildContext context) {
-    return ButtonBar(
-      alignment: MainAxisAlignment.center,
-      children: <Widget>[
-        IconButton(
-            icon: Icon(Icons.info),
-            color: Theme.of(context).accentColor,
-            onPressed: () => Navigator.pushNamed<bool>(
-                context, '/product/' + productIndex.toString())),
-        ScopedModelDescendant<MainModel>(
-          builder: (BuildContext context, Widget child, MainModel model) {
-            return IconButton(
-              icon: Icon(model.products[productIndex].isFavourite == false ? Icons.favorite_border : Icons.favorite),
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
+        return ButtonBar(
+          alignment: MainAxisAlignment.center,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.info),
+              color: Theme
+                  .of(context)
+                  .accentColor,
+              onPressed: () =>
+                  Navigator.pushNamed<bool>(
+                      context,
+                      '/product/' + model.allProducts[productIndex].id),),
+
+            IconButton(
+              icon: Icon(model.products[productIndex].isFavourite == false
+                  ? Icons.favorite_border
+                  : Icons.favorite),
               color: Colors.red,
-              onPressed: () => {
-                model.selectProduct(productIndex),
-                model.toggleProductFavouriteStatus(),
-
+              onPressed: () =>
+              {
+              model.selectProduct(model.allProducts[productIndex].id),
+              model.toggleProductFavouriteStatus(),
               },
-            );
-          },
-        )
-      ],
+            ),
+          ],);
+      },
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: <Widget>[
-          Image.network(product.image),
-          _buildTitlePriceRow(),
-          AddressTag('Noida, India'),
-          Text(product.userEmail),
-          _buildActionButton(context),
-        ],
-      ),
-    );
-  }
-}
+
+@override
+Widget build(BuildContext context) {
+  return Card(
+    child: Column(
+      children: <Widget>[
+        FadeInImage(
+          image: NetworkImage(product.image),
+          height: 300.0,
+          fit: BoxFit.cover,
+          placeholder: AssetImage('assets/food.jpg'),
+        ),
+        _buildTitlePriceRow(),
+        AddressTag('Noida, India'),
+        Text(product.userEmail),
+        _buildActionButton(context),
+      ],
+    ),
+  );
+}}

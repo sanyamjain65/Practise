@@ -1,17 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 
-import '../scoped-models/main.dart';
+import '../models/product.dart';
 import '../widgets/ui_elements/title_default.dart';
 
 class ProductPage extends StatelessWidget {
-  final int productIndex;
+  final Product product;
 
-  ProductPage(
-    this.productIndex,
-  );
+  ProductPage(this.product);
 
   _showWarningDialog(BuildContext context) {
     showDialog(
@@ -42,35 +39,39 @@ class ProductPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return WillPopScope(onWillPop: () {
-      print('back button pressed');
-      Navigator.pop(context, false);
-      return Future.value(false);
-    }, child: ScopedModelDescendant<MainModel>(
-      builder: (BuildContext context, Widget child, MainModel model) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(model.products[productIndex].title),
-          ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Image.asset(model.products[productIndex].image),
-              Container(
-                padding: EdgeInsets.all(10.0),
-                child: TitleDefault(model.products[productIndex].title),
-              ),
-              Container(
-                padding: EdgeInsets.all(10.0),
-                child: RaisedButton(
-                    color: Theme.of(context).accentColor,
-                    child: Text('DELETE'),
-                    onPressed: () => _showWarningDialog(context)),
-              )
-            ],
-          ),
-        );
+    return WillPopScope(
+      onWillPop: () {
+        print('back button pressed');
+        Navigator.pop(context, false);
+        return Future.value(false);
       },
-    ));
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(product.title),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            FadeInImage(
+              image: NetworkImage(product.image),
+              height: 300.0,
+              fit: BoxFit.cover,
+              placeholder: AssetImage('assets/food.jpg'),
+            ),
+            Container(
+              padding: EdgeInsets.all(10.0),
+              child: TitleDefault(product.title),
+            ),
+            Container(
+              padding: EdgeInsets.all(10.0),
+              child: RaisedButton(
+                  color: Theme.of(context).accentColor,
+                  child: Text('DELETE'),
+                  onPressed: () => _showWarningDialog(context)),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

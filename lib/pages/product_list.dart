@@ -5,12 +5,24 @@ import './product_edit.dart';
 import '../models/product.dart';
 import '../scoped-models/main.dart';
 
-class ProductListPage extends StatelessWidget {
+class ProductListPage extends StatefulWidget {
+  final MainModel model;
+
+  ProductListPage(this.model);
+  @override
+  State<StatefulWidget> createState() {
+    return _ProductListPageState();
+  }
+ }
+
+class _ProductListPageState extends State<ProductListPage> {
+
+
   Widget _buildEditButton(BuildContext context, int index, MainModel model) {
     return IconButton(
       icon: Icon(Icons.edit),
       onPressed: () {
-        model.selectProduct(index);
+        model.selectProduct(model.allProducts[index].id);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (BuildContext context) => ProductEditPage(),
@@ -29,7 +41,7 @@ class ProductListPage extends StatelessWidget {
             return Dismissible(
               onDismissed: (DismissDirection direction) {
                 if (direction == DismissDirection.endToStart) {
-                  model.selectProduct(index);
+                  model.selectProduct(model.allProducts[index].id);
                   model.deleteProduct();
                 } else if (direction == DismissDirection.startToEnd) {
                   print('swiped start to end');
@@ -62,5 +74,11 @@ class ProductListPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    widget.model.fetchProducts();
+    super.initState();
   }
 }
