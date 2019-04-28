@@ -41,7 +41,7 @@ mixin ProductsModel on ConnectedProducts {
       return null;
     }
     return products.firstWhere((Product product) {
-     return product.id == selProductId;
+      return product.id == selProductId;
     });
   }
 
@@ -60,7 +60,7 @@ mixin ProductsModel on ConnectedProducts {
     };
     return http
         .put(
-            'https://new-firebase-82fdf.firebaseio.com/products/${selectedProduct.id}.json',
+            'https://new-firebase-82fdf.firebaseio.com/products/${selectedProduct.id}.json?auth=${authenticatedUser.token}',
             body: json.encode(updateData))
         .then((http.Response response) {
       final Product updatedProduct = Product(
@@ -86,7 +86,7 @@ mixin ProductsModel on ConnectedProducts {
     notifyListeners();
     http
         .delete(
-            'https://new-firebase-82fdf.firebaseio.com/products/${deletedProduct}.json')
+            'https://new-firebase-82fdf.firebaseio.com/products/${deletedProduct}.json?auth=${authenticatedUser.token}')
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
@@ -97,9 +97,8 @@ mixin ProductsModel on ConnectedProducts {
     selProductId = productId;
   }
 
-  void toggleProductFavouriteStatus() {
-    final bool isCurrentlyFavourite =
-        selectedProduct.isFavourite;
+  void toggleProductFavouriteStatus() async {
+    final bool isCurrentlyFavourite = selectedProduct.isFavourite;
     final bool newFavouriteStatus = !isCurrentlyFavourite;
     final Product updatedProduct = Product(
         id: selectedProduct.id,
@@ -111,8 +110,33 @@ mixin ProductsModel on ConnectedProducts {
         userId: selectedProduct.userId,
         isFavourite: newFavouriteStatus);
     products[selectedProductIndex] = updatedProduct;
-    selProductId = null;
+//    selProductId = null;
     notifyListeners();
+    http.Response response;
+    if (newFavouriteStatus) {
+      print('${selectedProduct.id}');
+      response = await http.put(
+          'https://new-firebase-82fdf.firebaseio.com/products/${selectedProduct.id}/wishlistUsers/${authenticatedUser.id}.json?auth=${authenticatedUser.token}',
+          body: json.encode(true));
+    } else {
+      response = await http.delete(
+        'https://new-firebase-82fdf.firebaseio.com/products/${selectedProduct.id}/wishlistUsers/${authenticatedUser.id}.json?auth=${authenticatedUser.token}',
+      );
+    }
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final Product updatedProduct = Product(
+          id: selectedProduct.id,
+          title: selectedProduct.title,
+          description: selectedProduct.description,
+          price: selectedProduct.price,
+          image: selectedProduct.image,
+          userEmail: selectedProduct.userEmail,
+          userId: selectedProduct.userId,
+          isFavourite: !newFavouriteStatus);
+      products[selectedProductIndex] = updatedProduct;
+      selProductId = null;
+      notifyListeners();
+    }
   }
 
   void toggleDisplayMode() {
@@ -124,7 +148,8 @@ mixin ProductsModel on ConnectedProducts {
     _isLoading = true;
     notifyListeners();
     return http
-        .get('https://new-firebase-82fdf.firebaseio.com/products.json')
+        .get(
+            'https://new-firebase-82fdf.firebaseio.com/products.json?auth=${authenticatedUser.token}')
         .then((http.Response response) {
       final List<Product> fetchedProductList = [];
       final Map<String, dynamic> productListData = json.decode(response.body);
@@ -141,7 +166,11 @@ mixin ProductsModel on ConnectedProducts {
             price: productData['price'],
             image: productData['image'],
             userEmail: productData['userEmail'],
-            userId: productData['userId']);
+            userId: productData['userId'],
+            isFavourite: productData['wishlistUsers'] == null
+                ? false
+                : (productData['wishlistUsers'] as Map<String, dynamic>)
+                    .containsKey(authenticatedUser.id));
         fetchedProductList.add(product);
       });
       products = fetchedProductList;

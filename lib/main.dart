@@ -23,9 +23,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final MainModel model = MainModel();
+  bool _isAuthenticated = false;
+
   @override
   Widget build(BuildContext context) {
-    final MainModel model = MainModel();
+
     return ScopedModel<MainModel>(
       model: model,
       child: MaterialApp(
@@ -38,11 +41,17 @@ class _MyAppState extends State<MyApp> {
         ),
 //      home: AuthPage(),
         routes: {
-          '/': (BuildContext context) => AuthPage(),
-          '/product': (BuildContext context) => ProductsPage(model),
-          '/admin': (BuildContext context) => ManageProducts(model),
+          '/': (BuildContext context) => ScopedModelDescendant(builder: (BuildContext context, Widget child, MainModel model) {
+            return !_isAuthenticated ?  AuthPage() : ProductsPage(model);
+          },),
+          '/admin': (BuildContext context) => !_isAuthenticated ?  AuthPage() : ManageProducts(model),
         },
         onGenerateRoute: (RouteSettings settings) {
+          if (!_isAuthenticated) {
+            return MaterialPageRoute<bool> (
+              builder: (BuildContext context) => AuthPage(),
+            );
+          }
           final List<String> pathElements = settings.name.split('/');
           if (pathElements[0] != '') {
             return null;
@@ -53,17 +62,28 @@ class _MyAppState extends State<MyApp> {
               return product.id == productId;
             } );
             return MaterialPageRoute<bool>(
-              builder: (BuildContext context) => ProductPage(product),
+              builder: (BuildContext context) => !_isAuthenticated ?  AuthPage() :  ProductPage(product),
             );
           }
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
           return MaterialPageRoute<bool>(
-            builder: (BuildContext context) => ProductsPage(model),
+            builder: (BuildContext context) => !_isAuthenticated ?  AuthPage() : ProductsPage(model),
           );
         },
       ),
     );
+  }
+
+  @override
+  void initState() {
+    model.autoAuth();
+    model.userSubject.listen((bool isAuthenticated) {
+      setState(() {
+        _isAuthenticated = isAuthenticated;
+      });
+    });
+    super.initState();
   }
 }

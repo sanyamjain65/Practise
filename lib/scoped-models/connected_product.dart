@@ -32,7 +32,7 @@ mixin ConnectedProducts on Model {
     };
     try {
       final http.Response response = await http.post(
-          'https://new-firebase-82fdf.firebaseio.com/products.json',
+          'https://new-firebase-82fdf.firebaseio.com/products.json?auth=${authenticatedUser.token}',
           body: json.encode(productData));
       if (response.statusCode != 200 && response.statusCode != 201) {
         _postisLoading = false;

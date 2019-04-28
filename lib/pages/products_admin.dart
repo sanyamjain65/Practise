@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import './product_edit.dart';
 import './product_list.dart';
 import '../scoped-models/main.dart';
-class ManageProducts extends StatelessWidget {
+import '../widgets/ui_elements/logout_list_tile.dart';
 
+class ManageProducts extends StatelessWidget {
   final MainModel model;
 
   ManageProducts(this.model);
@@ -21,9 +22,11 @@ class ManageProducts extends StatelessWidget {
             leading: Icon(Icons.shop),
             title: Text('All Products'),
             onTap: () {
-              Navigator.pushReplacementNamed(context, '/product');
+              Navigator.pushReplacementNamed(context, '/');
             },
           ),
+          Divider(),
+          LogoutListTile(),
         ],
       ),
     );
@@ -50,8 +53,7 @@ class ManageProducts extends StatelessWidget {
         ),
         body: TabBarView(
           children: <Widget>[
-            ProductEditPage(
-            ),
+            ProductEditPage(),
             ProductListPage(model),
           ],
         ),
