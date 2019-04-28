@@ -2,14 +2,7 @@ import 'package:flutter/material.dart';
 
 import './product_edit.dart';
 import './product_list.dart';
-
 class ManageProducts extends StatelessWidget {
-  final Function addProduct;
-  final Function deleteProduct;
-  final Function updateProduct;
-  final List<Map<String, dynamic>> products;
-
-  ManageProducts(this.addProduct, this.deleteProduct, this.products, this.updateProduct);
 
   Widget _buildSideDrawer(BuildContext context) {
     return Drawer(
@@ -23,7 +16,7 @@ class ManageProducts extends StatelessWidget {
             leading: Icon(Icons.shop),
             title: Text('All Products'),
             onTap: () {
-              Navigator.pushReplacementNamed(context, '/');
+              Navigator.pushReplacementNamed(context, '/product');
             },
           ),
         ],
@@ -53,9 +46,8 @@ class ManageProducts extends StatelessWidget {
         body: TabBarView(
           children: <Widget>[
             ProductEditPage(
-              addProduct: addProduct,
             ),
-            ProductListPage(products, updateProduct),
+            ProductListPage(),
           ],
         ),
       ),

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-import './products.dart';
+import '../scoped-models/main.dart';
 
 class AuthPage extends StatefulWidget {
-  final List<Map<String, dynamic>> products;
-
-  AuthPage(this.products);
-
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -70,13 +67,9 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  void _submitForm() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => ProductsPage(widget.products),
-      ),
-    );
+  void _submitForm(Function login) {
+    login(_emailValue, _passwordValue);
+    Navigator.pushReplacementNamed(context, '/product');
   }
 
   @override
@@ -107,10 +100,15 @@ class _AuthPageState extends State<AuthPage> {
                     height: 10.0,
                   ),
                   _buildAcceptSwitch(),
-                  RaisedButton(
-                    child: Text('Save'),
-                    textColor: Colors.white,
-                    onPressed: _submitForm,
+                  ScopedModelDescendant<MainModel>(
+                    builder:
+                        (BuildContext context, Widget child, MainModel model) {
+                      return RaisedButton(
+                        child: Text('Save'),
+                        textColor: Colors.white,
+                        onPressed: () => _submitForm(model.login),
+                      );
+                    },
                   )
                 ],
               ),
